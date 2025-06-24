@@ -1,0 +1,1 @@
+export { WebGPUCanvas } from "./WebGPUCanvas";
