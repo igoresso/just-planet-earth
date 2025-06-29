@@ -19,8 +19,8 @@ export function Earth({ sunDirection, ...props }: PropsType) {
     });
 
   const [textureNightMap, normalHeightWaterMap] = useTexture([
-    "/earth/texture_night_8k.png",
-    "/earth/normal_height_water_8k.png",
+    "earth/texture_night_8k.png",
+    "earth/normal_height_water_8k.png",
   ]);
 
   const {

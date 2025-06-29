@@ -24,7 +24,7 @@ export function Atmosphere({ sunDirection, ...props }: PropsType) {
     lightSideMax: { value: 0.3, min: 0, max: 1, step: 0.01 },
   });
 
-  const [cloudsMap] = useTexture(["/earth/clouds_8k.png"]);
+  const [cloudsMap] = useTexture(["earth/clouds_8k.png"]);
 
   const {
     sunDirectionUniform,
