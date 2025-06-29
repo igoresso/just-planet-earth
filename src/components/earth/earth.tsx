@@ -18,10 +18,9 @@ export function Earth({ sunDirection, ...props }: PropsType) {
       emissiveColor: "#ddbb99",
     });
 
-  const [textureNightMap, normalHeightWaterMap, cloudsMap] = useTexture([
+  const [textureNightMap, normalHeightWaterMap] = useTexture([
     "/earth/texture_night_8k.png",
     "/earth/normal_height_water_8k.png",
-    "/earth/clouds_8k.png",
   ]);
 
   const {

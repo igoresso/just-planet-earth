@@ -9,9 +9,11 @@ import {
 import { type WebGPURendererParameters } from "three/src/renderers/webgpu/WebGPURenderer.js";
 
 declare module "@react-three/fiber" {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface ThreeElements extends ThreeToJSXElements<typeof THREE> {}
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 extend(THREE as any);
 
 export function WebGPUCanvas({

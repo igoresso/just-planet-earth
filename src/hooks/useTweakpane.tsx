@@ -39,6 +39,7 @@ export function useTweakpane<T extends TweakpaneParamsType>(
     for (const key in params) {
       const param = params[key];
       if (typeof param === "object" && param !== null && "value" in param) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         initial[key] = (param as any).value;
       } else {
         initial[key] = param;
@@ -67,6 +68,7 @@ export function useTweakpane<T extends TweakpaneParamsType>(
       let config: Record<string, unknown> = {};
 
       if (typeof param === "object" && "value" in param) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { value, ...rest } = param as any;
         dataRef.current[key] = value;
         config = rest;
