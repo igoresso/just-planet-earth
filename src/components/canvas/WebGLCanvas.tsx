@@ -1,17 +1,5 @@
 import React, { PropsWithChildren } from "react";
-import * as THREE from "three";
-import {
-  Canvas,
-  CanvasProps,
-  extend,
-  type ThreeToJSXElements,
-} from "@react-three/fiber";
-
-declare module "@react-three/fiber" {
-  interface ThreeElements extends ThreeToJSXElements<typeof THREE> {}
-}
-
-extend(THREE as any);
+import { Canvas, CanvasProps } from "@react-three/fiber";
 
 export function WebGLCanvas({
   children,

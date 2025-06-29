@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useRef, use } from "react";
+import { useMemo, useEffect } from "react";
 import * as THREE from "three/webgpu";
 import * as TSL from "three/tsl";
 import { ThreeElements } from "@react-three/fiber";
