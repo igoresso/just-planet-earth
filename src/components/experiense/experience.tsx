@@ -7,6 +7,7 @@ import { useTweakpane } from "@/hooks/useTweakpane";
 import { WebGPUCanvas } from "@/components/canvas";
 import { Sun } from "@/components/sun";
 import { Earth } from "@/components/earth";
+import { Atmosphere } from "@/components/atmosphere";
 
 export function Experience() {
   const { ambientLight, angle } = useTweakpane("Scene", {
@@ -26,6 +27,7 @@ export function Experience() {
       <ambientLight intensity={ambientLight} />
       <Sun sunDirection={sunDirection} />
       <Earth sunDirection={sunDirection} />
+      <Atmosphere sunDirection={sunDirection} />
       <OrbitControls makeDefault minDistance={1.2} maxDistance={2} />
       <Stats />
     </WebGPUCanvas>
