@@ -13,7 +13,11 @@ export function Effects() {
     threshold: { value: 0.1, min: 0, max: 1, step: 0.01 },
   });
 
-  const { gl, scene, camera } = useThree();
+  const { gl, scene, camera } = useThree<{
+    gl: THREE.WebGPURenderer;
+    scene: THREE.Scene;
+    camera: THREE.Camera;
+  }>();
 
   const { postProcessing, bloomPass } = useMemo(() => {
     const postProcessing = new THREE.PostProcessing(gl);
