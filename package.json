@@ -5,8 +5,6 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "export": "next export",
-    "deploy": "pnpm build && pnpm export",
     "start": "next start",
     "lint": "next lint"
   },
