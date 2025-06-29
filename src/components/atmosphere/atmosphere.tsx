@@ -18,7 +18,6 @@ export function Atmosphere({ sunDirection, ...props }: PropsType) {
     lightSideMax,
   } = useTweakpane("Atmosphere", {
     emissiveColor: "#72c2ff",
-    darkColor: "#bc490b",
     backSideMin: { value: -0.1, min: -0.5, max: 0.5, step: 0.01 },
     backSideMax: { value: 0.5, min: 0, max: 1, step: 0.01 },
     lightSideMin: { value: -0.2, min: -1, max: 0, step: 0.01 },
