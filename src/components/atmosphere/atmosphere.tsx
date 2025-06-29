@@ -11,17 +11,17 @@ type PropsType = {
 
 export function Atmosphere({ sunDirection, ...props }: PropsType) {
   const {
-    emissiveColor,
     backSideMin,
     backSideMax,
     lightSideMin,
     lightSideMax,
+    emissiveColor,
   } = useTweakpane("Atmosphere", {
-    emissiveColor: "#72c2ff",
     backSideMin: { value: -0.1, min: -0.5, max: 0.5, step: 0.01 },
     backSideMax: { value: 0.5, min: 0, max: 1, step: 0.01 },
-    lightSideMin: { value: -0.2, min: -1, max: 0, step: 0.01 },
+    lightSideMin: { value: -0.15, min: -1, max: 0, step: 0.01 },
     lightSideMax: { value: 0.3, min: 0, max: 1, step: 0.01 },
+    emissiveColor: "#72c2ff",
   });
 
   const [cloudsMap] = useTexture(["earth/clouds_8k.png"]);
