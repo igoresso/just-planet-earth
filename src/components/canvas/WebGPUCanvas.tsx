@@ -21,11 +21,12 @@ export function WebGPUCanvas({
   return (
     <Canvas
       {...canvasProps}
-      gl={(glProps) => {
+      gl={async (props) => {
         const renderer = new THREE.WebGPURenderer(
-          glProps as WebGPURendererParameters
+          props as WebGPURendererParameters
         );
-        return renderer.init().then(() => renderer);
+        await renderer.init();
+        return renderer;
       }}
     >
       {children}
