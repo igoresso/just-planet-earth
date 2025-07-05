@@ -1,20 +1,24 @@
 "use client";
 
+import { useState } from "react";
 import { Leva } from "leva";
 import { Experience } from "@/components/experiense";
 
 export default function Home() {
+  const [controlsHidden, setControlsHidden] = useState(true);
+
   return (
     <>
       <Leva
         isRoot
+        hidden={controlsHidden}
         titleBar={{
-          title: "Controls", // the text you want to show
-          filter: true, // optionally hide the filter input
-          drag: true, // whether you can drag the panel by the title
+          title: "Controls",
+          filter: false,
+          drag: true,
         }}
       />
-      <Experience />
+      <Experience onLoad={() => setControlsHidden(false)} />
     </>
   );
 }

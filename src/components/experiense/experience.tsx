@@ -1,16 +1,18 @@
-import { Suspense, useState, useMemo, useEffect } from "react";
+import { Suspense, useMemo, useEffect } from "react";
 import * as THREE from "three/webgpu";
 import { Loader, OrbitControls, Stats, useProgress } from "@react-three/drei";
-import { Leva, useControls, folder } from "leva";
+import { useControls, folder } from "leva";
 import { WebGPUCanvas } from "@/components/canvas";
 import { Sun } from "@/components/sun";
 import { Earth } from "@/components/earth";
 import { Atmosphere } from "@/components/atmosphere";
 import { Effects } from "@/components/effects";
 
-export function Experience() {
-  const [constrolsHidden, setConstrolsHidden] = useState(true);
+type Props = {
+  onLoad: () => void;
+};
 
+export function Experience({ onLoad }: Props) {
   const { ambientLight, angle } = useControls({
     Scene: folder(
       {
@@ -29,13 +31,12 @@ export function Experience() {
 
   useEffect(() => {
     if (progress == 100) {
-      setConstrolsHidden(false);
+      onLoad();
     }
   }, [progress]);
 
   return (
     <>
-      <Leva hidden={constrolsHidden} />
       <WebGPUCanvas
         scene={{ background: new THREE.Color("#00000c") }}
         camera={{ position: [0, 0, 1.75] }}
