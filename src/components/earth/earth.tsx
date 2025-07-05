@@ -18,9 +18,10 @@ export function Earth({ sunDirection, ...props }: PropsType) {
       emissiveColor: "#ddbb99",
     });
 
-  const [textureNightMap, normalHeightWaterMap] = useTexture([
-    "earth/texture_night_8k.png",
-    "earth/normal_height_water_8k.png",
+  // Textures
+  const [colorEmissive, normalHeightWater] = useTexture([
+    "earth/texture_emissive_4k.png",
+    "earth/normal_height_water_4k.png",
   ]);
 
   const {
@@ -29,48 +30,12 @@ export function Earth({ sunDirection, ...props }: PropsType) {
     normalScaleUniform,
     emissiveColorUniform,
     rourhnessWaterUniform,
-    position,
-    emissive,
-    normal,
-    roughness,
   } = useMemo(() => {
-    const textureNightNode = TSL.texture(textureNightMap);
-    const normalHeightWaterNode = TSL.texture(normalHeightWaterMap);
     const sunDirectionUniform = TSL.uniform(sunDirection);
-
-    // Displacement
     const heightScaleUniform = TSL.uniform(heightScale);
-    const displacement = TSL.mul(normalHeightWaterNode.b, heightScaleUniform);
-    const position = TSL.add(
-      TSL.positionLocal,
-      TSL.mul(TSL.normalLocal, displacement)
-    );
-
-    // Normals
     const normalScaleUniform = TSL.uniform(normalScale);
-    const normal = TSL.normalMap(
-      TSL.vec4(normalHeightWaterNode.rg, 1, 1),
-      normalScaleUniform
-    );
-
-    // Night texture
     const emissiveColorUniform = TSL.uniform(new THREE.Color(emissiveColor));
-    const darkSide = TSL.smoothstep(
-      -0.05,
-      0.15,
-      TSL.dot(TSL.normalWorld, TSL.negate(sunDirectionUniform))
-    );
-    const emissive = TSL.mix(TSL.vec3(0), emissiveColorUniform, darkSide).mul(
-      textureNightNode.a
-    );
-
-    // Roughness
     const rourhnessWaterUniform = TSL.uniform(roughnessWater);
-    const roughness = TSL.mix(
-      1,
-      rourhnessWaterUniform,
-      normalHeightWaterNode.a
-    );
 
     return {
       sunDirectionUniform,
@@ -78,10 +43,6 @@ export function Earth({ sunDirection, ...props }: PropsType) {
       normalScaleUniform,
       emissiveColorUniform,
       rourhnessWaterUniform,
-      position,
-      normal,
-      emissive,
-      roughness,
     };
   }, []);
 
@@ -105,15 +66,68 @@ export function Earth({ sunDirection, ...props }: PropsType) {
     rourhnessWaterUniform.value = roughnessWater;
   }, [roughnessWater]);
 
+  // Shader nodes
+  const { positionNode, emissiveNode, normalNode, roughnessNode } =
+    useMemo(() => {
+      const textureEmissiveTexture = TSL.texture(colorEmissive);
+      const normalHeightWaterTexture = TSL.texture(normalHeightWater);
+
+      // Displacement
+      const heightScaleUniform = TSL.uniform(heightScale);
+      const displacement = TSL.mul(
+        normalHeightWaterTexture.b,
+        heightScaleUniform
+      );
+      const positionNode = TSL.add(
+        TSL.positionLocal,
+        TSL.mul(TSL.normalLocal, displacement)
+      );
+
+      // Normals
+      const normalScaleUniform = TSL.uniform(normalScale);
+      const normalNode = TSL.normalMap(
+        TSL.vec4(normalHeightWaterTexture.rg, 1, 1),
+        normalScaleUniform
+      );
+
+      // Emissive
+      const emissiveColorUniform = TSL.uniform(new THREE.Color(emissiveColor));
+      const darkSide = TSL.smoothstep(
+        -0.05,
+        0.15,
+        TSL.dot(TSL.normalWorld, TSL.negate(sunDirectionUniform))
+      );
+      const emissiveNode = TSL.mix(
+        TSL.vec3(0),
+        emissiveColorUniform,
+        darkSide
+      ).mul(textureEmissiveTexture.a);
+
+      // Roughness
+      const rourhnessWaterUniform = TSL.uniform(roughnessWater);
+      const roughnessNode = TSL.mix(
+        1,
+        rourhnessWaterUniform,
+        normalHeightWaterTexture.a
+      );
+
+      return {
+        positionNode,
+        normalNode,
+        emissiveNode,
+        roughnessNode,
+      };
+    }, []);
+
   return (
     <mesh receiveShadow={false} castShadow={false} {...props}>
-      <icosahedronGeometry args={[1, 252]} />
+      <icosahedronGeometry args={[1, 64]} />
       <meshStandardNodeMaterial
-        map={textureNightMap}
-        positionNode={position}
-        normalNode={normal}
-        emissiveNode={emissive}
-        roughnessNode={roughness}
+        map={colorEmissive}
+        positionNode={positionNode}
+        normalNode={normalNode}
+        emissiveNode={emissiveNode}
+        roughnessNode={roughnessNode}
       />
     </mesh>
   );

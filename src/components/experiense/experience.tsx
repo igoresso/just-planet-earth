@@ -24,7 +24,7 @@ export function Experience() {
     <>
       <WebGPUCanvas
         scene={{ background: new THREE.Color("#00000c") }}
-        camera={{ position: [0, 0, 2] }}
+        camera={{ position: [0, 0, 1.75] }}
       >
         <Suspense fallback={null}>
           <ambientLight intensity={ambientLight} />
@@ -33,7 +33,7 @@ export function Experience() {
           <Atmosphere sunDirection={sunDirection} />
           <Effects />
           <color attach="background" args={["#00000c"]} />
-          <OrbitControls makeDefault minDistance={1.2} maxDistance={2} />
+          <OrbitControls makeDefault enablePan={false} enableZoom={false} />
           <Stats />
         </Suspense>
       </WebGPUCanvas>
