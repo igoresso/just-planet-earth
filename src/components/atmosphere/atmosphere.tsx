@@ -3,7 +3,7 @@ import * as THREE from "three/webgpu";
 import * as TSL from "three/tsl";
 import { ThreeElements } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
-import { useTweakpane } from "@/hooks/useTweakpane";
+import { useControls, folder } from "leva";
 
 type PropsType = {
   sunDirection: THREE.Vector3;
@@ -17,13 +17,20 @@ export function Atmosphere({ sunDirection, ...props }: PropsType) {
     lightSideMin,
     lightSideMax,
     emissiveColor,
-  } = useTweakpane("Atmosphere", {
-    cloudsThreshold: { value: 0.3, min: 0, max: 1, step: 0.01 },
-    backSideMin: { value: 0, min: -0.5, max: 0.5, step: 0.01 },
-    backSideMax: { value: 0.65, min: 0, max: 1, step: 0.01 },
-    lightSideMin: { value: 0, min: -0.5, max: 0.5, step: 0.01 },
-    lightSideMax: { value: 0.35, min: 0, max: 1, step: 0.01 },
-    emissiveColor: "#72c2ff",
+  } = useControls({
+    Atmosphere: folder(
+      {
+        cloudsThreshold: { value: 0.3, min: 0, max: 1, step: 0.01 },
+        backSideMin: { value: 0, min: -0.5, max: 0.5, step: 0.01 },
+        backSideMax: { value: 0.5, min: 0, max: 1, step: 0.01 },
+        lightSideMin: { value: 0, min: -0.5, max: 0.5, step: 0.01 },
+        lightSideMax: { value: 0.35, min: 0, max: 1, step: 0.01 },
+        emissiveColor: "#72c2ff",
+      },
+      {
+        collapsed: true,
+      }
+    ),
   });
 
   // Textures

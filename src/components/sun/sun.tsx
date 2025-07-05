@@ -1,19 +1,26 @@
-import { useMemo, useEffect, useRef } from "react";
+import { useRef, useMemo, useEffect } from "react";
 import * as THREE from "three/webgpu";
 import * as TSL from "three/tsl";
 import { ThreeElements } from "@react-three/fiber";
-import { useTweakpane } from "@/hooks/useTweakpane";
+import { useControls, folder } from "leva";
 
 type PropsType = {
   sunDirection: THREE.Vector3;
 } & ThreeElements["mesh"];
 
 export function Sun({ sunDirection, ...props }: PropsType) {
-  const { color, scale, distance, intensity } = useTweakpane("Sun", {
-    color: "#ffffff",
-    scale: { value: 0.1, min: 0.1, max: 1, step: 0.1 },
-    distance: { value: 10, min: 2, max: 10, step: 0.1 },
-    intensity: { value: 5, min: 0, max: 10, step: 0.01 },
+  const { scale, distance, intensity, color } = useControls({
+    Sun: folder(
+      {
+        scale: { value: 0.1, min: 0.1, max: 1, step: 0.1 },
+        distance: { value: 10, min: 2, max: 10, step: 0.1 },
+        intensity: { value: 5, min: 0, max: 10, step: 0.01 },
+        color: "#ffffff",
+      },
+      {
+        collapsed: true,
+      }
+    ),
   });
 
   const lightRef = useRef<THREE.DirectionalLight>(null!);

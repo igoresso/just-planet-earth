@@ -4,13 +4,20 @@ import * as TSL from "three/tsl";
 import { bloom } from "three/examples/jsm/tsl/display/BloomNode.js";
 import { smaa } from "three/examples/jsm/tsl/display/SMAANode.js";
 import { useThree, useFrame } from "@react-three/fiber";
-import { useTweakpane } from "@/hooks/useTweakpane";
+import { useControls, folder } from "leva";
 
 export function Effects() {
-  const { strength, radius, threshold } = useTweakpane("Bloom", {
-    strength: { value: 0.3, min: 0, max: 1, step: 0.01 },
-    radius: { value: 0.3, min: 0, max: 1, step: 0.01 },
-    threshold: { value: 0.1, min: 0, max: 1, step: 0.01 },
+  const { strength, radius, threshold } = useControls({
+    Bloom: folder(
+      {
+        strength: { value: 0.3, min: 0, max: 1, step: 0.01 },
+        radius: { value: 0.3, min: 0, max: 1, step: 0.01 },
+        threshold: { value: 0.1, min: 0, max: 1, step: 0.01 },
+      },
+      {
+        collapsed: true,
+      }
+    ),
   });
 
   const { gl, scene, camera } = useThree<{

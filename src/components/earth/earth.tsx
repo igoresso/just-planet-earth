@@ -3,7 +3,7 @@ import * as THREE from "three/webgpu";
 import * as TSL from "three/tsl";
 import { ThreeElements } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
-import { useTweakpane } from "@/hooks/useTweakpane";
+import { useControls, folder } from "leva";
 
 type PropsType = {
   sunDirection: THREE.Vector3;
@@ -11,11 +11,18 @@ type PropsType = {
 
 export function Earth({ sunDirection, ...props }: PropsType) {
   const { heightScale, normalScale, roughnessWater, emissiveColor } =
-    useTweakpane("Earth", {
-      heightScale: { value: 0.01, min: 0, max: 0.05, step: 0.001 },
-      normalScale: { value: 1, min: 0, max: 2, step: 0.01 },
-      roughnessWater: { value: 0.15, min: 0, max: 1, step: 0.01 },
-      emissiveColor: "#ddbb99",
+    useControls({
+      Earth: folder(
+        {
+          heightScale: { value: 0.01, min: 0, max: 0.05, step: 0.001 },
+          normalScale: { value: 1, min: 0, max: 2, step: 0.01 },
+          roughnessWater: { value: 0.15, min: 0, max: 1, step: 0.01 },
+          emissiveColor: "#ddbb99",
+        },
+        {
+          collapsed: true,
+        }
+      ),
     });
 
   // Textures
@@ -29,20 +36,20 @@ export function Earth({ sunDirection, ...props }: PropsType) {
     heightScaleUniform,
     normalScaleUniform,
     emissiveColorUniform,
-    rourhnessWaterUniform,
+    roughnessWaterUniform,
   } = useMemo(() => {
     const sunDirectionUniform = TSL.uniform(sunDirection);
     const heightScaleUniform = TSL.uniform(heightScale);
     const normalScaleUniform = TSL.uniform(normalScale);
     const emissiveColorUniform = TSL.uniform(new THREE.Color(emissiveColor));
-    const rourhnessWaterUniform = TSL.uniform(roughnessWater);
+    const roughnessWaterUniform = TSL.uniform(roughnessWater);
 
     return {
       sunDirectionUniform,
       heightScaleUniform,
       normalScaleUniform,
       emissiveColorUniform,
-      rourhnessWaterUniform,
+      roughnessWaterUniform,
     };
   }, []);
 
@@ -63,7 +70,7 @@ export function Earth({ sunDirection, ...props }: PropsType) {
   }, [emissiveColor]);
 
   useEffect(() => {
-    rourhnessWaterUniform.value = roughnessWater;
+    roughnessWaterUniform.value = roughnessWater;
   }, [roughnessWater]);
 
   // Shader nodes
@@ -73,7 +80,6 @@ export function Earth({ sunDirection, ...props }: PropsType) {
       const normalHeightWaterTexture = TSL.texture(normalHeightWater);
 
       // Displacement
-      const heightScaleUniform = TSL.uniform(heightScale);
       const displacement = TSL.mul(
         normalHeightWaterTexture.b,
         heightScaleUniform
@@ -84,14 +90,12 @@ export function Earth({ sunDirection, ...props }: PropsType) {
       );
 
       // Normals
-      const normalScaleUniform = TSL.uniform(normalScale);
       const normalNode = TSL.normalMap(
         TSL.vec4(normalHeightWaterTexture.rg, 1, 1),
         normalScaleUniform
       );
 
       // Emissive
-      const emissiveColorUniform = TSL.uniform(new THREE.Color(emissiveColor));
       const darkSide = TSL.smoothstep(
         -0.05,
         0.15,
@@ -104,10 +108,9 @@ export function Earth({ sunDirection, ...props }: PropsType) {
       ).mul(textureEmissiveTexture.a);
 
       // Roughness
-      const rourhnessWaterUniform = TSL.uniform(roughnessWater);
       const roughnessNode = TSL.mix(
         1,
-        rourhnessWaterUniform,
+        roughnessWaterUniform,
         normalHeightWaterTexture.a
       );
 
