@@ -47,7 +47,7 @@ export function Experience() {
           <Atmosphere sunDirection={sunDirection} />
           <Effects />
           <color attach="background" args={["#00000c"]} />
-          <OrbitControls makeDefault enablePan={false} enableZoom={true} />
+          <OrbitControls makeDefault enablePan={false} enableZoom={false} />
           <Stats />
         </Suspense>
       </WebGPUCanvas>
