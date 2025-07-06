@@ -10,7 +10,7 @@ export function Effects() {
   const { strength, radius, threshold } = useControls({
     Bloom: folder(
       {
-        strength: { value: 0.3, min: 0, max: 1, step: 0.01 },
+        strength: { value: 0.35, min: 0, max: 1, step: 0.01 },
         radius: { value: 0.3, min: 0, max: 1, step: 0.01 },
         threshold: { value: 0.1, min: 0, max: 1, step: 0.01 },
       },

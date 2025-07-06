@@ -20,12 +20,12 @@ export function Atmosphere({ sunDirection, ...props }: PropsType) {
   } = useControls({
     Atmosphere: folder(
       {
-        cloudsThreshold: { value: 0.3, min: 0, max: 1, step: 0.01 },
-        backSideMin: { value: 0, min: -0.5, max: 0.5, step: 0.01 },
-        backSideMax: { value: 0.5, min: 0, max: 1, step: 0.01 },
-        lightSideMin: { value: 0, min: -0.5, max: 0.5, step: 0.01 },
-        lightSideMax: { value: 0.35, min: 0, max: 1, step: 0.01 },
-        emissiveColor: "#72c2ff",
+        cloudsThreshold: { value: 0.2, min: 0, max: 1, step: 0.01 },
+        backSideMin: { value: 0.15, min: -1, max: 1, step: 0.01 },
+        backSideMax: { value: 0.3, min: 0, max: 1, step: 0.01 },
+        lightSideMin: { value: -0.2, min: -0.5, max: 0, step: 0.01 },
+        lightSideMax: { value: 0.75, min: 0, max: 1, step: 0.01 },
+        emissiveColor: "#099ffc",
       },
       {
         collapsed: true,
@@ -101,18 +101,21 @@ export function Atmosphere({ sunDirection, ...props }: PropsType) {
   }, [emissiveColor]);
 
   // Shader nodes
-  const { colorNode } = useMemo(() => {
-    const opacity = TSL.smoothstep(
+  const { colorNode, opacityNode, emissiveNode } = useMemo(() => {
+    const cloudsTexture = TSL.smoothstep(
       TSL.float(cloudsThresholdUniform),
       TSL.float(1.0),
       TSL.texture(clouds).r
     );
 
-    const backSide = TSL.smoothstep(
-      backSideMinUniform,
-      backSideMaxUniform,
-      TSL.dot(TSL.normalView, TSL.negate(TSL.positionViewDirection))
+    const frontSide = TSL.cbrt(
+      TSL.smoothstep(
+        backSideMinUniform,
+        backSideMaxUniform,
+        TSL.dot(TSL.normalView, TSL.positionViewDirection)
+      )
     );
+    const backSide = TSL.oneMinus(frontSide);
 
     const lightSide = TSL.smoothstep(
       lightSideMinUniform,
@@ -120,26 +123,38 @@ export function Atmosphere({ sunDirection, ...props }: PropsType) {
       TSL.dot(TSL.normalWorld, sunDirectionUniform)
     );
 
-    const colorFront = TSL.vec4(TSL.vec3(1.0), TSL.mul(opacity, lightSide));
-    const colorBack = TSL.vec4(
-      emissiveColorUniform,
-      TSL.mul(lightSide, backSide)
+    const colorNode = TSL.mix(
+      TSL.mix(TSL.vec3(0), emissiveColorUniform, lightSide),
+      TSL.vec3(1),
+      frontSide
     );
 
-    const colorNode = TSL.select(TSL.frontFacing, colorFront, colorBack);
+    const opacityNode = TSL.mix(
+      TSL.float(1.0),
+      cloudsTexture,
+      TSL.sqrt(frontSide)
+    );
 
-    return { colorNode };
+    const emissiveNode = TSL.mix(
+      TSL.float(0.0),
+      emissiveColorUniform,
+      TSL.mul(backSide, lightSide)
+    );
+
+    return { colorNode, opacityNode, emissiveNode };
   }, []);
 
   return (
-    <mesh scale={1.015} receiveShadow={false} castShadow={false} {...props}>
+    <mesh scale={1.01} receiveShadow={false} castShadow={false} {...props}>
       <icosahedronGeometry args={[1, 16]} />
-      <meshBasicNodeMaterial
+      <meshStandardNodeMaterial
         side={THREE.DoubleSide}
         depthWrite={false}
         blending={THREE.NormalBlending}
         transparent
         colorNode={colorNode}
+        opacityNode={opacityNode}
+        emissiveNode={emissiveNode}
       />
     </mesh>
   );
