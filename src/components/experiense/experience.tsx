@@ -6,6 +6,7 @@ import { WebGPUCanvas } from "@/components/canvas";
 import { Sun } from "@/components/sun";
 import { Earth } from "@/components/earth";
 import { Atmosphere } from "@/components/atmosphere";
+import { Stars } from "@/components/stars";
 import { Effects } from "@/components/effects";
 
 type Props = {
@@ -39,13 +40,14 @@ export function Experience({ onLoad }: Props) {
     <>
       <WebGPUCanvas
         scene={{ background: new THREE.Color("#00000c") }}
-        camera={{ position: [0, 0, 1.75] }}
+        camera={{ position: [0, 0, 2] }}
       >
         <Suspense fallback={null}>
           <ambientLight intensity={ambientLight} />
           <Sun sunDirection={sunDirection} />
           <Earth sunDirection={sunDirection} />
           <Atmosphere sunDirection={sunDirection} />
+          <Stars radius={100} depth={50} count={5000} factor={5} />
           <Effects />
           <color attach="background" args={["#00000c"]} />
           <OrbitControls makeDefault enablePan={false} enableZoom={false} />
