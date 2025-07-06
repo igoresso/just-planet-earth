@@ -74,10 +74,13 @@ export function Earth({ sunDirection, ...props }: PropsType) {
   }, [roughnessWater]);
 
   // Shader nodes
-  const { positionNode, emissiveNode, normalNode, roughnessNode } =
+  const { colorNode, positionNode, emissiveNode, normalNode, roughnessNode } =
     useMemo(() => {
-      const textureEmissiveTexture = TSL.texture(colorEmissive);
+      const colorEmissiveTexture = TSL.texture(colorEmissive);
       const normalHeightWaterTexture = TSL.texture(normalHeightWater);
+
+      // Color
+      const colorNode = TSL.sRGBTransferEOTF(colorEmissiveTexture.rgb);
 
       // Displacement
       const displacement = TSL.mul(
@@ -105,7 +108,7 @@ export function Earth({ sunDirection, ...props }: PropsType) {
         TSL.vec3(0),
         emissiveColorUniform,
         darkSide
-      ).mul(textureEmissiveTexture.a);
+      ).mul(colorEmissiveTexture.a);
 
       // Roughness
       const roughnessNode = TSL.mix(
@@ -115,6 +118,7 @@ export function Earth({ sunDirection, ...props }: PropsType) {
       );
 
       return {
+        colorNode,
         positionNode,
         normalNode,
         emissiveNode,
@@ -126,7 +130,7 @@ export function Earth({ sunDirection, ...props }: PropsType) {
     <mesh receiveShadow={false} castShadow={false} {...props}>
       <icosahedronGeometry args={[1, 64]} />
       <meshStandardNodeMaterial
-        map={colorEmissive}
+        colorNode={colorNode}
         positionNode={positionNode}
         normalNode={normalNode}
         emissiveNode={emissiveNode}
