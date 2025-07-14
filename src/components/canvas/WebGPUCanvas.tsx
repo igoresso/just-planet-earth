@@ -1,4 +1,4 @@
-import React, { PropsWithChildren } from "react";
+import { useState, useLayoutEffect, PropsWithChildren } from "react";
 import * as THREE from "three/webgpu";
 import {
   Canvas,
@@ -6,7 +6,9 @@ import {
   extend,
   type ThreeToJSXElements,
 } from "@react-three/fiber";
+import WebGPU from "three/examples/jsm/capabilities/WebGPU.js";
 import { type WebGPURendererParameters } from "three/src/renderers/webgpu/WebGPURenderer.js";
+import { Unsupported } from "../unsupported";
 
 declare module "@react-three/fiber" {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -20,6 +22,15 @@ export function WebGPUCanvas({
   children,
   ...canvasProps
 }: PropsWithChildren<CanvasProps>) {
+  const [isSupported, setIsSupported] = useState<boolean | null>(null);
+
+  useLayoutEffect(() => {
+    setIsSupported(WebGPU.isAvailable());
+  }, []);
+
+  if (isSupported === null) return null;
+  if (!isSupported) return <Unsupported />;
+
   return (
     <Canvas
       {...canvasProps}
