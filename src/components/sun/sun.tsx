@@ -12,7 +12,7 @@ export function Sun({ sunDirection, ...props }: PropsType) {
   const { scale, distance, intensity, color } = useControls({
     Sun: folder(
       {
-        scale: { value: 0.1, min: 0.1, max: 1, step: 0.1 },
+        scale: { value: 0.074, min: 0.01, max: 0.2, step: 0.001 },
         distance: { value: 10, min: 2, max: 10, step: 0.1 },
         intensity: { value: 5, min: 0, max: 10, step: 0.01 },
         color: "#ffffff",
