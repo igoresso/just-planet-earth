@@ -24,6 +24,7 @@ export function Sun({ sunDirection, ...props }: PropsType) {
   });
 
   const lightRef = useRef<THREE.DirectionalLight>(null!);
+  const meshRef = useRef<THREE.Mesh>(null!);
 
   const { colorUniform } = useMemo(() => {
     return {
@@ -36,6 +37,12 @@ export function Sun({ sunDirection, ...props }: PropsType) {
     colorUniform.value.set(color);
   }, [color]);
 
+  useEffect(() => {
+    const position = sunDirection.clone().multiplyScalar(distance);
+    lightRef.current.position.copy(position);
+    meshRef.current.position.copy(position);
+  }, [sunDirection, distance]);
+
   return (
     <>
       <directionalLight
@@ -44,6 +51,7 @@ export function Sun({ sunDirection, ...props }: PropsType) {
         intensity={intensity}
       />
       <mesh
+        ref={meshRef}
         scale={scale}
         position={sunDirection.clone().multiplyScalar(distance)}
         castShadow={false}

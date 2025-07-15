@@ -8,25 +8,30 @@ import { Earth } from "@/components/earth";
 import { Atmosphere } from "@/components/atmosphere";
 import { Stars } from "@/components/stars";
 import { Effects } from "@/components/effects";
+import { getSunDirectionECEF, ecef2three } from "@/utilities";
 
 type Props = {
   onLoad: () => void;
 };
 
 export function Experience({ onLoad }: Props) {
-  const { ambientLight, angle } = useControls({
+  const { ambientLight, timeOffset } = useControls({
     Scene: folder(
       {
         ambientLight: { value: 0.01, min: 0, max: 5, step: 0.001 },
-        angle: { value: 3, min: 0, max: 2 * Math.PI, step: 0.001 },
+        timeOffset: { value: 0, min: -12, max: 12, step: 0.01 },
       },
       { collapsed: true }
     ),
   });
 
   const sunDirection = useMemo(() => {
-    return new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle));
-  }, [angle]);
+    const now = new Date();
+    const ecef = getSunDirectionECEF(
+      new Date(now.getTime() + timeOffset * 3600 * 1000)
+    );
+    return ecef2three(ecef);
+  }, [timeOffset]);
 
   const { progress } = useProgress();
 
