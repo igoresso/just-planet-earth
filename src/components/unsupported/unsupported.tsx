@@ -5,8 +5,8 @@ export function Unsupported() {
         Unsupported Browser
       </h2>
       <p className="text-sm lg:text-base font-mono font-light">
-        Sorry, we couldn't load this experience. Your browser doesn't support
-        WebGPU.
+        Sorry, we couldn{"'"}t load this experience. Your browser doesn{"'"}t
+        support WebGPU.
       </p>
     </section>
   );
