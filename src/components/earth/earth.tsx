@@ -15,7 +15,7 @@ export function Earth({ sunDirection, ...props }: PropsType) {
       Earth: folder(
         {
           heightScale: { value: 0.01, min: 0, max: 0.05, step: 0.001 },
-          normalScale: { value: 1, min: 0, max: 2, step: 0.01 },
+          normalScale: { value: 0.5, min: 0, max: 2, step: 0.01 },
           roughnessWater: { value: 0.15, min: 0, max: 1, step: 0.01 },
           emissiveColor: "#ddbb99",
         },

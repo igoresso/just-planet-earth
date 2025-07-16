@@ -22,10 +22,10 @@ export function Atmosphere({ sunDirection, ...props }: PropsType) {
       {
         cloudsThreshold: { value: 0.2, min: 0, max: 1, step: 0.01 },
         backSideMin: { value: 0.15, min: -1, max: 1, step: 0.01 },
-        backSideMax: { value: 0.3, min: 0, max: 1, step: 0.01 },
-        lightSideMin: { value: -0.2, min: -0.5, max: 0, step: 0.01 },
+        backSideMax: { value: 0.35, min: 0, max: 1, step: 0.01 },
+        lightSideMin: { value: -0.1, min: -0.5, max: 0, step: 0.01 },
         lightSideMax: { value: 0.75, min: 0, max: 1, step: 0.01 },
-        emissiveColor: "#099ffc",
+        emissiveColor: "#21aaff",
       },
       {
         collapsed: true,
