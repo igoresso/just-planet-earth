@@ -19,9 +19,7 @@ export function Earth({ sunDirection, ...props }: PropsType) {
           roughnessWater: { value: 0.15, min: 0, max: 1, step: 0.01 },
           emissiveColor: "#ddbb99",
         },
-        {
-          collapsed: true,
-        }
+        { collapsed: true }
       ),
     });
 
@@ -32,45 +30,45 @@ export function Earth({ sunDirection, ...props }: PropsType) {
   ]);
 
   const {
-    sunDirectionUniform,
-    heightScaleUniform,
-    normalScaleUniform,
-    emissiveColorUniform,
-    roughnessWaterUniform,
+    uSunDirection,
+    uHeightScale,
+    uNormalScale,
+    uEmissiveColor,
+    uRoughnessWater,
   } = useMemo(() => {
-    const sunDirectionUniform = TSL.uniform(sunDirection);
-    const heightScaleUniform = TSL.uniform(heightScale);
-    const normalScaleUniform = TSL.uniform(normalScale);
-    const emissiveColorUniform = TSL.uniform(new THREE.Color(emissiveColor));
-    const roughnessWaterUniform = TSL.uniform(roughnessWater);
+    const uSunDirection = TSL.uniform(sunDirection);
+    const uHeightScale = TSL.uniform(heightScale);
+    const uNormalScale = TSL.uniform(normalScale);
+    const uEmissiveColor = TSL.uniform(new THREE.Color(emissiveColor));
+    const uRoughnessWater = TSL.uniform(roughnessWater);
 
     return {
-      sunDirectionUniform,
-      heightScaleUniform,
-      normalScaleUniform,
-      emissiveColorUniform,
-      roughnessWaterUniform,
+      uSunDirection,
+      uHeightScale,
+      uNormalScale,
+      uEmissiveColor,
+      uRoughnessWater,
     };
   }, []);
 
   useEffect(() => {
-    sunDirectionUniform.value.copy(sunDirection);
+    uSunDirection.value.copy(sunDirection);
   }, [sunDirection]);
 
   useEffect(() => {
-    heightScaleUniform.value = heightScale;
+    uHeightScale.value = heightScale;
   }, [heightScale]);
 
   useEffect(() => {
-    normalScaleUniform.value = normalScale;
+    uNormalScale.value = normalScale;
   }, [normalScale]);
 
   useEffect(() => {
-    emissiveColorUniform.value.set(emissiveColor);
+    uEmissiveColor.value.set(emissiveColor);
   }, [emissiveColor]);
 
   useEffect(() => {
-    roughnessWaterUniform.value = roughnessWater;
+    uRoughnessWater.value = roughnessWater;
   }, [roughnessWater]);
 
   // Shader nodes
@@ -83,10 +81,7 @@ export function Earth({ sunDirection, ...props }: PropsType) {
       const colorNode = TSL.sRGBTransferEOTF(colorEmissiveTexture.rgb);
 
       // Displacement
-      const displacement = TSL.mul(
-        normalHeightWaterTexture.b,
-        heightScaleUniform
-      );
+      const displacement = TSL.mul(normalHeightWaterTexture.b, uHeightScale);
       const positionNode = TSL.add(
         TSL.positionLocal,
         TSL.mul(TSL.normalLocal, displacement)
@@ -95,25 +90,23 @@ export function Earth({ sunDirection, ...props }: PropsType) {
       // Normals
       const normalNode = TSL.normalMap(
         TSL.vec4(normalHeightWaterTexture.rg, 1, 1),
-        normalScaleUniform
+        uNormalScale
       );
 
       // Emissive
       const darkSide = TSL.smoothstep(
         -0.05,
         0.15,
-        TSL.dot(TSL.normalWorld, TSL.negate(sunDirectionUniform))
+        TSL.dot(TSL.normalWorld, TSL.negate(uSunDirection))
       );
-      const emissiveNode = TSL.mix(
-        TSL.vec3(0),
-        emissiveColorUniform,
-        darkSide
-      ).mul(colorEmissiveTexture.a);
+      const emissiveNode = TSL.mix(TSL.vec3(0), uEmissiveColor, darkSide).mul(
+        colorEmissiveTexture.a
+      );
 
       // Roughness
       const roughnessNode = TSL.mix(
         1,
-        roughnessWaterUniform,
+        uRoughnessWater,
         normalHeightWaterTexture.a
       );
 

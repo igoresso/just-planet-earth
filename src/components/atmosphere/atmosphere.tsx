@@ -27,9 +27,7 @@ export function Atmosphere({ sunDirection, ...props }: PropsType) {
         lightSideMax: { value: 0.75, min: 0, max: 1, step: 0.01 },
         emissiveColor: "#21aaff",
       },
-      {
-        collapsed: true,
-      }
+      { collapsed: true }
     ),
   });
 
@@ -45,86 +43,86 @@ export function Atmosphere({ sunDirection, ...props }: PropsType) {
 
   // Uniforms
   const {
-    sunDirectionUniform,
-    emissiveColorUniform,
-    cloudsThresholdUniform,
-    backSideMinUniform,
-    backSideMaxUniform,
-    lightSideMinUniform,
-    lightSideMaxUniform,
+    uSunDirection,
+    uCloudsThreshold,
+    uBackSideMin,
+    uBackSideMax,
+    uLightSideMin,
+    uLightSideMax,
+    uEmissiveColor,
   } = useMemo(() => {
-    const sunDirectionUniform = TSL.uniform(sunDirection);
-    const cloudsThresholdUniform = TSL.uniform(cloudsThreshold);
-    const backSideMinUniform = TSL.uniform(backSideMin);
-    const backSideMaxUniform = TSL.uniform(backSideMax);
-    const lightSideMinUniform = TSL.uniform(lightSideMin);
-    const lightSideMaxUniform = TSL.uniform(lightSideMax);
-    const emissiveColorUniform = TSL.uniform(new THREE.Color(emissiveColor));
+    const uSunDirection = TSL.uniform(sunDirection);
+    const uCloudsThreshold = TSL.uniform(cloudsThreshold);
+    const uBackSideMin = TSL.uniform(backSideMin);
+    const uBackSideMax = TSL.uniform(backSideMax);
+    const uLightSideMin = TSL.uniform(lightSideMin);
+    const uLightSideMax = TSL.uniform(lightSideMax);
+    const uEmissiveColor = TSL.uniform(new THREE.Color(emissiveColor));
 
     return {
-      sunDirectionUniform,
-      cloudsThresholdUniform,
-      backSideMinUniform,
-      backSideMaxUniform,
-      lightSideMinUniform,
-      lightSideMaxUniform,
-      emissiveColorUniform,
+      uSunDirection,
+      uCloudsThreshold,
+      uBackSideMin,
+      uBackSideMax,
+      uLightSideMin,
+      uLightSideMax,
+      uEmissiveColor,
     };
   }, []);
 
   useEffect(() => {
-    sunDirectionUniform.value.copy(sunDirection);
+    uSunDirection.value.copy(sunDirection);
   }, [sunDirection]);
 
   useEffect(() => {
-    cloudsThresholdUniform.value = cloudsThreshold;
+    uCloudsThreshold.value = cloudsThreshold;
   }, [cloudsThreshold]);
 
   useEffect(() => {
-    backSideMinUniform.value = backSideMin;
+    uBackSideMin.value = backSideMin;
   }, [backSideMin]);
 
   useEffect(() => {
-    backSideMaxUniform.value = backSideMax;
+    uBackSideMax.value = backSideMax;
   }, [backSideMax]);
 
   useEffect(() => {
-    lightSideMinUniform.value = lightSideMin;
+    uLightSideMin.value = lightSideMin;
   }, [lightSideMin]);
 
   useEffect(() => {
-    lightSideMaxUniform.value = lightSideMax;
+    uLightSideMax.value = lightSideMax;
   }, [lightSideMax]);
 
   useEffect(() => {
-    emissiveColorUniform.value.set(emissiveColor);
+    uEmissiveColor.value.set(emissiveColor);
   }, [emissiveColor]);
 
   // Shader nodes
   const { colorNode, opacityNode, emissiveNode } = useMemo(() => {
     const cloudsTexture = TSL.smoothstep(
-      TSL.float(cloudsThresholdUniform),
+      TSL.float(uCloudsThreshold),
       TSL.float(1.0),
       TSL.texture(clouds).r
     );
 
     const frontSide = TSL.cbrt(
       TSL.smoothstep(
-        backSideMinUniform,
-        backSideMaxUniform,
+        uBackSideMin,
+        uBackSideMax,
         TSL.dot(TSL.normalView, TSL.positionViewDirection)
       )
     );
     const backSide = TSL.oneMinus(frontSide);
 
     const lightSide = TSL.smoothstep(
-      lightSideMinUniform,
-      lightSideMaxUniform,
-      TSL.dot(TSL.normalWorld, sunDirectionUniform)
+      uLightSideMin,
+      uLightSideMax,
+      TSL.dot(TSL.normalWorld, uSunDirection)
     );
 
     const colorNode = TSL.mix(
-      TSL.mix(TSL.vec3(0), emissiveColorUniform, lightSide),
+      TSL.mix(TSL.vec3(0), uEmissiveColor, lightSide),
       TSL.vec3(1),
       frontSide
     );
@@ -137,7 +135,7 @@ export function Atmosphere({ sunDirection, ...props }: PropsType) {
 
     const emissiveNode = TSL.mix(
       TSL.float(0.0),
-      emissiveColorUniform,
+      uEmissiveColor,
       TSL.mul(backSide, lightSide)
     );
 

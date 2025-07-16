@@ -17,24 +17,23 @@ export function Sun({ sunDirection, ...props }: PropsType) {
         intensity: { value: 5, min: 0, max: 10, step: 0.01 },
         color: "#ffffff",
       },
-      {
-        collapsed: true,
-      }
+      { collapsed: true }
     ),
   });
 
   const lightRef = useRef<THREE.DirectionalLight>(null!);
   const meshRef = useRef<THREE.Mesh>(null!);
 
-  const { colorUniform } = useMemo(() => {
-    return {
-      colorUniform: TSL.uniform(new THREE.Color(color)),
-    };
-  }, []);
+  const { uColor } = useMemo(
+    () => ({
+      uColor: TSL.uniform(new THREE.Color(color)),
+    }),
+    []
+  );
 
   useEffect(() => {
     lightRef.current.color.set(color);
-    colorUniform.value.set(color);
+    uColor.value.set(color);
   }, [color]);
 
   useEffect(() => {
@@ -60,8 +59,8 @@ export function Sun({ sunDirection, ...props }: PropsType) {
       >
         <icosahedronGeometry args={[1, 2]} />
         <meshStandardNodeMaterial
-          colorNode={colorUniform}
-          emissiveNode={colorUniform}
+          colorNode={uColor}
+          emissiveNode={uColor}
           toneMapped={false}
           lights={false}
         />
