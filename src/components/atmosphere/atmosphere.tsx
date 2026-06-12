@@ -12,6 +12,8 @@ type PropsType = {
 export function Atmosphere({ sunDirection, ...props }: PropsType) {
   const {
     cloudsThreshold,
+    edgeFade,
+    frontGlow,
     backSideMin,
     backSideMax,
     lightSideMin,
@@ -21,13 +23,15 @@ export function Atmosphere({ sunDirection, ...props }: PropsType) {
     Atmosphere: folder(
       {
         cloudsThreshold: { value: 0.2, min: 0, max: 1, step: 0.01 },
+        edgeFade: { value: 0.5, min: 0, max: 1, step: 0.01 },
+        frontGlow: { value: 0.4, min: 0, max: 1, step: 0.01 },
         backSideMin: { value: 0.15, min: -1, max: 1, step: 0.01 },
-        backSideMax: { value: 0.35, min: 0, max: 1, step: 0.01 },
+        backSideMax: { value: 0.45, min: 0, max: 1, step: 0.01 },
         lightSideMin: { value: -0.1, min: -0.5, max: 0, step: 0.01 },
         lightSideMax: { value: 0.75, min: 0, max: 1, step: 0.01 },
-        emissiveColor: "#21aaff",
+        emissiveColor: "#4f9df5",
       },
-      { collapsed: true }
+      { collapsed: true },
     ),
   });
 
@@ -45,6 +49,8 @@ export function Atmosphere({ sunDirection, ...props }: PropsType) {
   const {
     uSunDirection,
     uCloudsThreshold,
+    uEdgeFade,
+    uFrontGlow,
     uBackSideMin,
     uBackSideMax,
     uLightSideMin,
@@ -53,6 +59,8 @@ export function Atmosphere({ sunDirection, ...props }: PropsType) {
   } = useMemo(() => {
     const uSunDirection = TSL.uniform(sunDirection);
     const uCloudsThreshold = TSL.uniform(cloudsThreshold);
+    const uEdgeFade = TSL.uniform(edgeFade);
+    const uFrontGlow = TSL.uniform(frontGlow);
     const uBackSideMin = TSL.uniform(backSideMin);
     const uBackSideMax = TSL.uniform(backSideMax);
     const uLightSideMin = TSL.uniform(lightSideMin);
@@ -62,6 +70,8 @@ export function Atmosphere({ sunDirection, ...props }: PropsType) {
     return {
       uSunDirection,
       uCloudsThreshold,
+      uEdgeFade,
+      uFrontGlow,
       uBackSideMin,
       uBackSideMax,
       uLightSideMin,
@@ -77,6 +87,14 @@ export function Atmosphere({ sunDirection, ...props }: PropsType) {
   useEffect(() => {
     uCloudsThreshold.value = cloudsThreshold;
   }, [cloudsThreshold]);
+
+  useEffect(() => {
+    uEdgeFade.value = edgeFade;
+  }, [edgeFade]);
+
+  useEffect(() => {
+    uFrontGlow.value = frontGlow;
+  }, [frontGlow]);
 
   useEffect(() => {
     uBackSideMin.value = backSideMin;
@@ -103,50 +121,68 @@ export function Atmosphere({ sunDirection, ...props }: PropsType) {
     const cloudsTexture = TSL.smoothstep(
       TSL.float(uCloudsThreshold),
       TSL.float(1.0),
-      TSL.texture(clouds).r
+      TSL.texture(clouds).r,
     );
 
+    // How directly the surface faces the camera: 1 at the centre of the disc, 0 at the silhouette
+    const facingRatio = TSL.dot(TSL.normalView, TSL.positionViewDirection);
+
     const frontSide = TSL.cbrt(
-      TSL.smoothstep(
-        uBackSideMin,
-        uBackSideMax,
-        TSL.dot(TSL.normalView, TSL.positionViewDirection)
-      )
+      TSL.smoothstep(uBackSideMin, uBackSideMax, facingRatio),
     );
     const backSide = TSL.oneMinus(frontSide);
+
+    // Ramps the rim down to zero at the silhouette, so the glow fades into space
+    const edgeFadeNode = TSL.smoothstep(TSL.float(0.0), uEdgeFade, facingRatio);
 
     const lightSide = TSL.smoothstep(
       uLightSideMin,
       uLightSideMax,
-      TSL.dot(TSL.normalWorld, uSunDirection)
+      TSL.dot(TSL.normalWorld, uSunDirection),
+    );
+
+    // Backscatter (sun behind the camera) is dimmer than forward scatter,
+    // so the rim thins out when viewing the fully lit face
+    const viewDirWorld = TSL.normalize(
+      TSL.sub(TSL.positionWorld, TSL.cameraPosition)
+    );
+    const scatter = TSL.mix(
+      uFrontGlow,
+      TSL.float(1.0),
+      TSL.smoothstep(
+        TSL.float(-1.0),
+        TSL.float(0.0),
+        TSL.dot(viewDirWorld, uSunDirection)
+      )
     );
 
     const colorNode = TSL.mix(
       TSL.mix(TSL.vec3(0), uEmissiveColor, lightSide),
       TSL.vec3(1),
-      frontSide
+      frontSide,
     );
 
+    // Rim glow on the lit limb, clouds over the face of the planet
     const opacityNode = TSL.mix(
-      TSL.float(1.0),
+      TSL.mul(edgeFadeNode, TSL.mul(lightSide, scatter)),
       cloudsTexture,
-      TSL.sqrt(frontSide)
+      TSL.sqrt(frontSide),
     );
 
     const emissiveNode = TSL.mix(
       TSL.float(0.0),
       uEmissiveColor,
-      TSL.mul(backSide, lightSide)
+      TSL.mul(backSide, TSL.mul(lightSide, scatter)),
     );
 
     return { colorNode, opacityNode, emissiveNode };
   }, []);
 
   return (
-    <mesh scale={1.01} receiveShadow={false} castShadow={false} {...props}>
+    <mesh scale={1.03} receiveShadow={false} castShadow={false} {...props}>
       <icosahedronGeometry args={[1, 16]} />
       <meshStandardNodeMaterial
-        side={THREE.DoubleSide}
+        side={THREE.FrontSide}
         depthWrite={false}
         blending={THREE.NormalBlending}
         transparent
